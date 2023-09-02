@@ -12,11 +12,30 @@ class NoteDetailsViewController: UIViewController {
     @IBOutlet weak var titleTextView: UITextView!
     @IBOutlet weak var noteTextView: UITextView!
     
+    var placeholderTitleLabel: UILabel!
+    
     let noteManager = NoteManager()
     var selectedNote: Note?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        placeholderTitleLabel = UILabel()
+        placeholderTitleLabel.text = "Title"
+        placeholderTitleLabel.font = .boldSystemFont(ofSize: (titleTextView.font?.pointSize)!)
+        placeholderTitleLabel.sizeToFit()
+        placeholderTitleLabel.frame.origin = CGPoint(x: 5, y: (titleTextView.font?.pointSize)! / 2)
+        placeholderTitleLabel.textColor = .tertiaryLabel
+        placeholderTitleLabel.isHidden = !titleTextView.text.isEmpty
+        
+        titleTextView.addSubview(placeholderTitleLabel)
+        titleTextView.delegate = self
+        titleTextView.layer.borderWidth = 0.2
+        titleTextView.layer.cornerRadius = 3.0
+        
+        noteTextView.layer.borderWidth = 0.2
+        noteTextView.layer.cornerRadius = 3.0
+        
         evaluateNote()
         
     }
@@ -26,14 +45,18 @@ class NoteDetailsViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
+    
     func evaluateNote() {
         if let selectedNote = selectedNote {
             titleTextView.text = selectedNote.title
             noteTextView.text = selectedNote.note
+            placeholderTitleLabel.isHidden = true
         } else {
             titleTextView.text = ""
             noteTextView.text = ""
+            placeholderTitleLabel.isHidden = false
         }
+        
     }
     
     func evaluateSave() {
@@ -60,5 +83,17 @@ class NoteDetailsViewController: UIViewController {
             return Note(title: title, note: note)
         }
         return nil
+    }
+}
+
+extension NoteDetailsViewController: UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) {
+        placeholderTitleLabel?.isHidden = !titleTextView.text.isEmpty
+    }
+    func textViewDidEndEditing(_ textView: UITextView) {
+        placeholderTitleLabel?.isHidden = !titleTextView.text.isEmpty
+    }
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        placeholderTitleLabel?.isHidden = true
     }
 }
